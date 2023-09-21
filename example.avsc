@@ -1,12 +1,13 @@
 {
-	"type": "record",
-	"name": "DemoSchema",
-	"fields": [
-		{"name": "IntField", "type": "int"},
-		{"name": "DoubleField", "type": "double"},
-		{"name": "StringField", "type": "string"},
-		{"name": "BoolField", "type": "boolean"},
-		{"name": "BytesField", "type": "bytes"}
-	]
-
+  "doc": "Teste Kafka Golang",
+  "fields": [
+    {
+      "doc": "Hora que a mensagem foi gerada pelo consumidor!",
+      "name": "hora_mensagem",
+      "type": "string"
+    }
+  ],
+  "name": "MensagemSimples",
+  "namespace": "teste",
+  "type": "record"
 }
