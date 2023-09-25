@@ -12,8 +12,8 @@ type IMessage[TData any] interface {
 }
 
 type Message[TData any] struct {
-	Header Header
-	data   TData
+	CorrelationId uuid.UUID `json:"correlationId"`
+	Data          TData     `json:"data"`
 }
 
 func (message *Message[TData]) New(data *TData) error {
@@ -21,15 +21,17 @@ func (message *Message[TData]) New(data *TData) error {
 		return errors.New("data cannot be null")
 	}
 
-	message.data = *data
-	message.Header = Header{CorrelationId: uuid.New()}
+	message.Data = *data
 	return nil
 }
 
-func (message *Message[TData]) GetData() *TData {
-	return &message.data
-}
+func (message *Message[TData]) NewWithSameCorrelationId(data *TData, correlationId uuid.UUID) error {
+	if data == nil {
+		return errors.New("data cannot be null")
+	}
 
-type Header struct {
-	CorrelationId uuid.UUID `json:"correlationId"`
+	message.Data = *data
+	message.CorrelationId = correlationId
+
+	return nil
 }

@@ -1,4 +1,4 @@
-package publisher
+package publisher_kafka
 
 import (
 	"errors"
@@ -37,7 +37,7 @@ func (publisher *TopicPublisher[TData]) New(producerSetup setup.IProducerSetup, 
 
 func (publisher *TopicPublisher[TData]) Publish(topic string, message base.Message[TData], serialization enums.MessageSerialization) error {
 
-	payload, err := publisher.serializePayload(topic, *message.GetData(), serialization)
+	payload, err := publisher.serializePayload(topic, message.Data, serialization)
 
 	if err != nil {
 		fmt.Println("Failed attempt to serialize message")
@@ -47,8 +47,8 @@ func (publisher *TopicPublisher[TData]) Publish(topic string, message base.Messa
 	err = publisher.producer.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 		Value:          payload,
-		Headers:        []kafka.Header{{Key: "correlationId", Value: []byte((message.Header.CorrelationId).String())}},
-		Key:            []byte((message.Header.CorrelationId).String()),
+		Headers:        []kafka.Header{{Key: "correlationId", Value: []byte((message.CorrelationId).String())}},
+		Key:            []byte((message.CorrelationId).String()),
 	}, nil)
 
 	if err != nil {

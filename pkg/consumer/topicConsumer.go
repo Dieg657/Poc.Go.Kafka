@@ -1,4 +1,4 @@
-package consumer
+package consumer_kafka
 
 import (
 	"errors"
@@ -11,6 +11,7 @@ import (
 	"github.com/Dieg657/Poc.Go.Kafka/pkg/enums"
 	"github.com/Dieg657/Poc.Go.Kafka/pkg/setup"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/google/uuid"
 )
 
 type ITopicConsumer[TData any] interface {
@@ -53,7 +54,7 @@ func (topicConsumer *TopicConsumer[TData]) Consume(topic string, deserialization
 	for run {
 		select {
 		case sig := <-sigchan:
-			fmt.Printf("Caught signal %v: terminating\n", sig)
+			fmt.Printf("Terminating consumer signal %v cought!\n", sig)
 			run = false
 		default:
 			ev := topicConsumer.consumer.Poll(100)
@@ -64,9 +65,10 @@ func (topicConsumer *TopicConsumer[TData]) Consume(topic string, deserialization
 			switch e := ev.(type) {
 			case *kafka.Message:
 				baseMessage := base.Message[TData]{}
-				err := deserializeMessage(topicConsumer, e, deserialization, baseMessage.GetData())
+				topicConsumer.fillHeader(e, &baseMessage)
+				err := deserializeMessage(topicConsumer, e, deserialization, &baseMessage.Data)
 				if err != nil {
-					fmt.Printf("Failed to deserialize payload: %s\n", err)
+					fmt.Printf("Failed on deserialize message: %s\n", err)
 				} else {
 					fmt.Printf("%% Message on %s:\n", e.TopicPartition)
 					err := handler(baseMessage)
@@ -74,13 +76,7 @@ func (topicConsumer *TopicConsumer[TData]) Consume(topic string, deserialization
 						fmt.Println("Error on handle message")
 					}
 				}
-				if e.Headers != nil {
-					fmt.Printf("%% Headers: %v\n", e.Headers)
-				}
 			case kafka.Error:
-				// Errors should generally be considered
-				// informational, the client will try to
-				// automatically recover.
 				fmt.Fprintf(os.Stderr, "%% Error: %v: %v\n", e.Code(), e)
 			default:
 				fmt.Printf("Ignored %v\n", e)
@@ -89,6 +85,25 @@ func (topicConsumer *TopicConsumer[TData]) Consume(topic string, deserialization
 	}
 
 	return nil
+}
+
+func (*TopicConsumer[TData]) fillHeader(e *kafka.Message, baseMessage *base.Message[TData]) {
+	correlationHeader := kafka.Header{}
+
+	if e.Headers != nil {
+		for i := 0; i < len(e.Headers); i++ {
+			if e.Headers[i].Key == "correlationId" {
+				correlationHeader = e.Headers[i]
+			}
+		}
+	}
+
+	if correlationHeader.Key == "" {
+		baseMessage.CorrelationId = uuid.UUID(correlationHeader.Value)
+		return
+	}
+
+	baseMessage.CorrelationId = uuid.New()
 }
 
 func deserializeMessage[TData any](topicConsumer *TopicConsumer[TData], e *kafka.Message, deserialization enums.MessageDeserialization, data *TData) error {
@@ -133,4 +148,8 @@ func rebalanceCallback(c *kafka.Consumer, event kafka.Event) error {
 	}
 
 	return nil
+}
+
+func fillHeader(header []kafka.Header) {
+
 }

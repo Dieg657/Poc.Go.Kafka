@@ -27,7 +27,7 @@ func (consumerSetup *ConsumerSetup) New(configs *options.KafkaOptions) error {
 		"bootstrap.servers":  configs.Brokers,
 		"group.id":           configs.GroupId,
 		"client.id":          hostname,
-		"enable.auto.commit": "false",
+		"enable.auto.commit": "true",
 		"auto.offset.reset":  string(configs.Offset),
 	})
 
