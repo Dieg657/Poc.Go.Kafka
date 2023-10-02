@@ -23,17 +23,19 @@ type KafkaIoC struct {
 
 func (ioc *KafkaIoC) New() error {
 	optionsKafka := &options.KafkaOptions{
-		Brokers:           "localhost:9092",
-		GroupId:           "console-teste-kafka",
+		Brokers:           "broker:9092",
+		GroupId:           "Poc.Kafka.Go",
 		EnableIdempotence: true,
 		Offset:            enums.Earliest,
-		UserName:          "",
-		Password:          "",
+		SaslMechanism:     enums.Plain,
+		SecurityProtocol:  enums.SaslSsl,
+		UserName:          "ApiKey",
+		Password:          "Secret",
 		RequestTimeout:    5000,
 		SchemaRegistry: options.SchemaRegistryOptions{
-			Url:                        "http://localhost:8081",
-			BasicAuthUser:              "user",
-			BasicAuthSecret:            "user",
+			Url:                        "https://psrc-dz0xz.westus2.azure.confluent.cloud",
+			BasicAuthUser:              "SchemaRegistryApiKey",
+			BasicAuthSecret:            "SchemaRegitrySecret",
 			AutoRegisterSchemas:        false,
 			RequestTimeout:             5000,
 			BasicAuthCredentialsSource: enums.UserInfo,

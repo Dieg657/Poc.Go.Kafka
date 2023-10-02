@@ -29,7 +29,7 @@ func (worker *Producer) StartProducer(iocKafka ioc.IKafkaIoC, ctx context.Contex
 			fmt.Printf("Enviando a mensagem\n")
 			payload := base.Message[avro.MensagemSimples]{}
 			payload.New(&avro.MensagemSimples{Hora_mensagem: time.Now().Format("15:04:05 02/01/2006")})
-			err := publisher.Publish("teste2", payload, enums.AvroSerialization)
+			err := publisher.Publish("teste-kafka", payload, enums.AvroSerialization)
 
 			if err != nil {
 				fmt.Println(err)

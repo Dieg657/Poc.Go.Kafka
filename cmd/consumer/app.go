@@ -25,7 +25,7 @@ func (worker *Consumer) StartConsumer(kafkaIoc ioc.IKafkaIoC, ctx context.Contex
 			wg.Done()
 			return
 		default:
-			err := consumer.Consume("teste2", enums.AvroDeserialization, func(message base.Message[avro.MensagemSimples]) error {
+			err := consumer.Consume("teste-kafka", enums.AvroDeserialization, func(message base.Message[avro.MensagemSimples]) error {
 				fmt.Printf("Foi recebido o correlationId: %s", message.CorrelationId)
 				fmt.Printf("Hora da mensagem recebida: %s\n", message.Data.Hora_mensagem)
 				time.Sleep(5 * time.Millisecond)

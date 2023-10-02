@@ -27,6 +27,11 @@ func (consumerSetup *ConsumerSetup) New(configs *options.KafkaOptions) error {
 		"bootstrap.servers":  configs.Brokers,
 		"group.id":           configs.GroupId,
 		"client.id":          hostname,
+		"sasl.mechanisms":    string(configs.SaslMechanism),
+		"security.protocol":  string(configs.SecurityProtocol),
+		"sasl.username":      configs.UserName,
+		"sasl.password":      configs.Password,
+		"session.timeout.ms": 45000,
 		"enable.auto.commit": "true",
 		"auto.offset.reset":  string(configs.Offset),
 	})

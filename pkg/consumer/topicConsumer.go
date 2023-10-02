@@ -75,6 +75,10 @@ func (topicConsumer *TopicConsumer[TData]) Consume(topic string, deserialization
 					if err != nil {
 						fmt.Println("Error on handle message")
 					}
+					err = commitMessage(topicConsumer.consumer, e.TopicPartition)
+					if err != nil {
+						fmt.Println("Error on commit message")
+					}
 				}
 			case kafka.Error:
 				fmt.Fprintf(os.Stderr, "%% Error: %v: %v\n", e.Code(), e)
@@ -150,6 +154,17 @@ func rebalanceCallback(c *kafka.Consumer, event kafka.Event) error {
 	return nil
 }
 
-func fillHeader(header []kafka.Header) {
+func commitMessage(c *kafka.Consumer, topicPartition kafka.TopicPartition) error {
+	if topicPartition.Offset%10 != 0 {
+		return nil
+	}
 
+	commitedOffsets, err := c.Commit()
+
+	if err != nil && err.(kafka.Error).Code() != kafka.ErrNoOffset {
+		return err
+	}
+
+	fmt.Printf("%% Commited offsets to Kafka: %v\n", commitedOffsets)
+	return nil
 }
