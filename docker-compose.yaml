@@ -1,4 +1,15 @@
 
 version: '3'
 services:
-  
+  app:
+    build: .
+    environment:
+      KAFKA_BROKERS: "broker:9092"
+      KAFKA_GROUPID: "Poc.Go.Kafka"
+      KAFKA_AUTO_OFFSET_RESET: "Latest"
+      KAFKA_USERNAME: ""
+      KAFKA_PASSWORD: ""
+      KAFKA_SCHEMA_REGISTRY_URL: "https://"
+      KAFKA_SCHEMA_REGISTRY_USERNAME: ""
+      KAFKA_SCHEMA_REGISTRY_PASSWORD: ""
+    

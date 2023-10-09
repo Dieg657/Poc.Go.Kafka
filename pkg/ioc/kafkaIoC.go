@@ -23,19 +23,19 @@ type KafkaIoC struct {
 
 func (ioc *KafkaIoC) New() error {
 	optionsKafka := &options.KafkaOptions{
-		Brokers:           "broker:9092",
-		GroupId:           "Poc.Kafka.Go",
+		Brokers:           os.Getenv("KAFKA_BROKERS"),
+		GroupId:           os.Getenv("KAFKA_GROUPID"),
 		EnableIdempotence: true,
-		Offset:            enums.Earliest,
+		Offset:            enums.AutoOffsetReset(os.Getenv("KAFKA_AUTO_OFFSET_RESET")),
 		SaslMechanism:     enums.Plain,
 		SecurityProtocol:  enums.SaslSsl,
-		UserName:          "ApiKey",
-		Password:          "Secret",
+		UserName:          os.Getenv("KAFKA_USERNAME"),
+		Password:          os.Getenv("KAFKA_PASSWORD"),
 		RequestTimeout:    5000,
 		SchemaRegistry: options.SchemaRegistryOptions{
-			Url:                        "https://psrc-dz0xz.westus2.azure.confluent.cloud",
-			BasicAuthUser:              "SchemaRegistryApiKey",
-			BasicAuthSecret:            "SchemaRegitrySecret",
+			Url:                        os.Getenv("KAFKA_SCHEMA_REGISTRY_URL"),
+			BasicAuthUser:              os.Getenv("KAFKA_SCHEMA_REGISTRY_USERNAME"),
+			BasicAuthSecret:            os.Getenv("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
 			AutoRegisterSchemas:        false,
 			RequestTimeout:             5000,
 			BasicAuthCredentialsSource: enums.UserInfo,

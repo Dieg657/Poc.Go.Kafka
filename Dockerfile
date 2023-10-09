@@ -1,6 +1,8 @@
 FROM golang:1.21-alpine AS BUILD
 
-# Define WORKDIR
+RUN apk add alpine-sdk 
+RUN apk --update add git
+
 WORKDIR /app
 
 # Copy MOD and SUM
@@ -12,24 +14,12 @@ RUN go mod download && go mod verify
 # Copy project files
 COPY . .
 
-# Build Go app to directory
-RUN go build -o ./out/app .
+RUN GOOS=linux GOARCH=amd64 go build -tags musl -o ./out/app .
 
+FROM alpine
 
-# Define RUNTIME image
-FROM alpine AS RUNTIME
-
-# Define WORKDIR 
 WORKDIR /app
 
-# Install Certificates
-RUN apk add ca-certificates
-
-# Copy Go exec from BUILD
 COPY --from=BUILD /app/out /app
 
-# Expose port 8080
-EXPOSE 8080
-
-# Define entrypoint to Go built
-CMD [ "./app" ]
+CMD ["./app"]
